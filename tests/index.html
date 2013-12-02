@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>hashchange test</title>
+</head>
+<body>
+<script src="sea.js"></script>
+<script>
+seajs.use('../src/seajs-hashchange.js', function(HashChange) {
+    console.log(HashChange);
+    HashChange({
+        loading: function(params) {
+            alert(seajs.resolve(params.id));
+        }
+    });
+});
+</script>
+</body>
+</html>
