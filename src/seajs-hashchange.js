@@ -20,7 +20,8 @@ define(function() {
      * @param {Object} config
          * @config [String] config.id default: "id"
          * @config [String] config.defaultValue default: "index"
-         * @config [Function] config.loading called when loading new js.
+         * @config [Function] config.loading called when loading new js from server.
+         * @config [Function] config.callback called when every hash change.
      */
     function HashChange(config) {
         if (!(this instanceof HashChange)) {
@@ -103,29 +104,39 @@ define(function() {
                 oldParams = _getHashParams(e.oldURL),
                 newParams = _getHashParams(e.newURL),
                 newId = newParams[_id] = newParams[_id] || _config.defaultValue,
-                oldModule,
                 newModule;
 
             newModule = seajs.require(newId);
             // module is loaded.
             if (newModule) {
-                if (!_this.load[newId]) {
-                    newModule.init(newParams, oldParams);
-                    _this.load[newId] = true;
-                }
-                newModule.show(newParams, oldParams);
+                _this.show(newId, newModule, newParams, oldParams);
             } else {
                 _config.loading && _config.loading(newParams, oldParams);
                 seajs.use(newId, function(mod) {
-                    mod.init(newParams, oldParams);
-                    _this.load[newId] = true;
-                    mod.show(newParams, oldParams);
+                    _this.show(newId, mod, newParams, oldParams);
                 });
             }
             // not the first call
             if (e.type) {
                 seajs.require(oldParams[_id] || _config.defaultValue).hide(oldParams, newParams);
             }
+
+            _config.callback && _config.callback();
+        },
+
+        /**
+         * show the new module
+         * @param {String} id
+         * @param {Object} mod
+         * @param {Object} newParams
+         * @param {Object} oldParams
+         */
+        show: function(id, mod, newParams, oldParams) {
+            if (!this.load[id]) {
+                mod.init(newParams, oldParams);
+                this.load[id] = true;
+            }
+            mod.show(newParams, oldParams);
         },
 
         /**
@@ -145,6 +156,9 @@ define(function() {
             });
         }
     });
+
+    // destroy
+    cover = null;
 
     return HashChange;
 });
