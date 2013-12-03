@@ -102,21 +102,23 @@ define(function(require) {
                 _id = _config.id,
                 oldParams = _getHashParams(e.oldURL),
                 newParams = _getHashParams(e.newURL),
+                newId = newParams[_id] = newParams[_id] || _config.defaultValue,
                 oldModule,
                 newModule;
 
-            if (!newParams[_id]) {
-                newParams[_id] = _config.defaultValue;
-            }
-
-            newModule = seajs.require(newParams[_id]);
+            newModule = seajs.require(newId);
             // module is loaded.
             if (newModule) {
+                if (_this.load[newId]) {
+                    newModule.init(newParams, oldParams);
+                    _this.load[newId] = true;
+                }
                 newModule.show(newParams, oldParams);
             } else {
                 _config.loading && _config.loading(newParams, oldParams);
-                seajs.use(newParams[_id], function(mod) {
+                seajs.use(newId, function(mod) {
                     mod.init(newParams, oldParams);
+                    _this.load[newId] = true;
                     mod.show(newParams, oldParams);
                 });
             }
@@ -132,6 +134,8 @@ define(function(require) {
         init: function() {
             // this.attach(this.hashchange.bind(this));
             var _this = this;
+            // init load object
+            _this.load = {};
             _this.attach(function() {
                 _this.hashchange.apply(_this, arguments);
             });

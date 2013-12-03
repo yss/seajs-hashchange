@@ -11,12 +11,12 @@ seajs.use('../src/seajs-hashchange.js', function(HashChange) {
     console.log(HashChange);
     HashChange({
         loading: function(params) {
-            alert(seajs.resolve(params.id));
+            console.log(seajs.resolve(params.id));
         }
     });
 
     setTimeout(function() {
-        window.location.hash = 'id=aa';
+        window.location.hash = 'id=t';
     }, 3000);
 });
 </script>
