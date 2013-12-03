@@ -3,7 +3,7 @@
   "name": "seajs-hashchange",
   "version": "1.0.0",
   "description": "A Sea.js application for one page mode base on hashchange.",
-  "keywords": ["seajs", "plugin", "hashchange", "hash", "one page mode"],
+  "keywords": ["seajs", "plugin", "hashchange", "hash", "one page mode", "application"],
   "author": "yss <yss.nelson@gmail.com>",
   "repository": {
     "type": "git",

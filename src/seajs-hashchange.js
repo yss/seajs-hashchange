@@ -2,7 +2,7 @@
  * A Sea.js application for one page mode base on hashchange.
  */
 
-define(function(require) {
+define(function() {
     "use strict";
     var win = window,
         HASH_CHANGE = 'hashchange';
@@ -18,16 +18,16 @@ define(function(require) {
      * Main function
      * @class HashChange
      * @param {Object} config
-         * @param [String] config.id default: "id"
-         * @param [String] config.defaultValue default: "index"
-         * @param [Function] config.loading called when loading new js.
+         * @config [String] config.id default: "id"
+         * @config [String] config.defaultValue default: "index"
+         * @config [Function] config.loading called when loading new js.
      */
     function HashChange(config) {
         if (!(this instanceof HashChange)) {
             return new HashChange(config);
         }
 
-        // default: http://xxx.xx/#tmp=hp
+        // default: http://xxx.xx/#id=index
         this.config = {
             id: 'id',
             defaultValue: 'index'
@@ -132,10 +132,10 @@ define(function(require) {
          * initialize function
          */
         init: function() {
-            // this.attach(this.hashchange.bind(this));
             var _this = this;
             // init load object
             _this.load = {};
+            // _this.attach(this.hashchange.bind(_this));
             _this.attach(function() {
                 _this.hashchange.apply(_this, arguments);
             });
