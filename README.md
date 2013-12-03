@@ -9,9 +9,19 @@ seajs.use('path/to/seajs-hashchange.js', function(HashChange) {
     HashChange({
         id: 'id',
         defaultValue: 'index',
-        loading: function(params) {
-            alert(seajs.resolve(params['id']) + ' is loading...');
+        loading: function(newParams, oldParams) {
+            alert(seajs.resolve(newParams['id']) + ' is loading...');
         }
     });
 });
 ```
+
+## API
+
+some api must be implement. like:
+
+### init(newParams, oldParams)
+
+### show(newParams, oldParams)
+
+### hide(oldParams, newParams)

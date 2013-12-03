@@ -112,17 +112,17 @@ define(function(require) {
             newModule = seajs.require(newParams[_id]);
             // module is loaded.
             if (newModule) {
-                newModule.show(newParams);
+                newModule.show(newParams, oldParams);
             } else {
-                _config.loading && _config.loading(newParams);
+                _config.loading && _config.loading(newParams, oldParams);
                 seajs.use(newParams[_id], function(mod) {
-                    mod.init(newParams);
-                    mod.show(newParams);
+                    mod.init(newParams, oldParams);
+                    mod.show(newParams, oldParams);
                 });
             }
             // not the first call
             if (e.type) {
-                seajs.require(oldParams[_id] || _config.defaultValue).hide(oldParams);
+                seajs.require(oldParams[_id] || _config.defaultValue).hide(oldParams, newParams);
             }
         },
 

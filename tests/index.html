@@ -14,6 +14,10 @@ seajs.use('../src/seajs-hashchange.js', function(HashChange) {
             alert(seajs.resolve(params.id));
         }
     });
+
+    setTimeout(function() {
+        window.location.hash = 'id=aa';
+    }, 3000);
 });
 </script>
 </body>
