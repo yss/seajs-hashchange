@@ -103,6 +103,7 @@ define(function() {
                 _id = _config.id,
                 oldParams = _getHashParams(e.oldURL),
                 newParams = _getHashParams(e.newURL),
+                oldId = oldParams[_id] = e.type && (oldParams[_id] || _config.defaultValue),
                 newId = newParams[_id] = newParams[_id] || _config.defaultValue,
                 newModule;
 
@@ -117,8 +118,8 @@ define(function() {
                 });
             }
             // not the first call
-            if (e.type) {
-                seajs.require(oldParams[_id] || _config.defaultValue).hide(oldParams, newParams);
+            if (oldId) {
+                seajs.require(oldId).hide(oldParams, newParams);
             }
 
             _config.callback && _config.callback();
