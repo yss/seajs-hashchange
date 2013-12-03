@@ -91,7 +91,7 @@ define(function() {
 
         /**
          * dispatch function, the part of core.
-         * @param [EventObject] e
+         * @param [EventObject|Object] e
          */
         hashchange: function(e) {
             // for ie
@@ -109,7 +109,7 @@ define(function() {
             newModule = seajs.require(newId);
             // module is loaded.
             if (newModule) {
-                if (_this.load[newId]) {
+                if (!_this.load[newId]) {
                     newModule.init(newParams, oldParams);
                     _this.load[newId] = true;
                 }
