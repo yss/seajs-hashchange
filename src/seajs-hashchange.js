@@ -158,8 +158,5 @@ define(function() {
         }
     });
 
-    // destroy
-    cover = null;
-
     return HashChange;
 });
