@@ -79,9 +79,14 @@ define(function() {
          * @return {Object} default: {}
          */
         getHashParams: function(url) {
-            var params = {};
+            var params = {},
+                splitKey = '#';
             if (url) {
-                url = ('' + url).split('#')[1];
+                url += '';
+                if (!~url.indexOf(splitKey)) {
+                    splitKey = '?';
+                }
+                url = url.split(splitKey)[1];
                 url && url.replace(/([^=&]+)=([^&]*)/g, function($0, $1, $2) {
                     // params[$1] = $2 && JSON.parse($2);
                     params[$1] = $2;
