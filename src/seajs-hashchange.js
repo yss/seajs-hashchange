@@ -122,12 +122,29 @@ define(function() {
                     _this.show(newId, mod, newParams, oldParams);
                 });
             }
-            // not the first call
-            if (oldId) {
-                seajs.require(oldId).hide(oldParams, newParams);
-            }
+            _this.hide(oldId, newParams, oldParams);
 
             _config.callback && _config.callback();
+        },
+
+        /**
+         * hide module
+         * @param {String} id
+         * @param {Object} newParams
+         * @param {Object} oldParams
+         */
+        hide: function(id, newParams, oldParams) {
+            if (id) {
+                var mod = seajs.require(id);
+                if (mod && mod.hide) {
+                    mod.hide(oldParams, newParams);
+                } else {
+                    mod = document.getElementById(oldParams[this.config.id]);
+                    if (mod) {
+                        mod.style.display = 'none';
+                    }
+                }
+            }
         },
 
         /**
@@ -142,7 +159,14 @@ define(function() {
                 mod.init(newParams, oldParams);
                 this.load[id] = true;
             }
-            mod.show(newParams, oldParams);
+            if (mod.show) {
+                mod.show(newParams, oldParams);
+            } else {
+                mod = document.getElementById(newParams[this.config.id]);
+                if (mod) {
+                    mod.style.display = 'block';
+                }
+            }
         },
 
         /**
