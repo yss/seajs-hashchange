@@ -9,11 +9,13 @@
 <script>
 seajs.use('../src/seajs-hashchange.js', function(HashChange) {
     console.log(HashChange);
-    HashChange({
-        loading: function(params) {
-            console.log(seajs.resolve(params.id));
-        }
-    });
+    HashChange().on('loading', function(params) {
+        console.log(seajs.resolve(params.id) + ' is loading');
+    }).on('loaded', function(params) {
+        console.log(seajs.resolve(params.id) + ' is loaded');
+    }).on('change', function(params) {
+        console.log('hashchanged!');
+    });;
 
     setTimeout(function() {
         window.location.hash = 'id=t';

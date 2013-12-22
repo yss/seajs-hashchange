@@ -18,10 +18,9 @@ define(function() {
      * Main function
      * @class HashChange
      * @param {Object} config
-         * @config [String] config.id default: "id"
-         * @config [String] config.defaultValue default: "index"
-         * @config [Function] config.loading called when loading new js from server.
-         * @config [Function] config.callback called when every hash change.
+         * @config {String} config.id default: "id"
+         * @config {String} config.defaultValue default: "index"
+         * @config {String} config.hashKey default: "#"
      */
     function HashChange(config) {
         if (!(this instanceof HashChange)) {
@@ -31,7 +30,8 @@ define(function() {
         // default: http://xxx.xx/#id=index
         this.config = {
             id: 'id',
-            defaultValue: 'index'
+            defaultValue: 'index',
+            hashKey: '#'
         };
         config && cover(this.config, config);
 
@@ -80,7 +80,7 @@ define(function() {
          */
         getHashParams: function(url) {
             var params = {},
-                splitKey = '#';
+                splitKey = this.config.hashKey;
             if (url) {
                 url += '';
                 if (!~url.indexOf(splitKey)) {
@@ -103,28 +103,62 @@ define(function() {
             // for ie
             e = e || win.event;
             var _this = this,
-                _getHashParams = _this.getHashParams,
                 _config = _this.config,
                 _id = _config.id,
-                oldParams = _getHashParams(e.oldURL),
-                newParams = _getHashParams(e.newURL),
+                oldParams = _this.getHashParams(e.oldURL),
+                newParams = _this.getHashParams(e.newURL),
                 oldId = oldParams[_id] = e.type && (oldParams[_id] || _config.defaultValue),
                 newId = newParams[_id] = newParams[_id] || _config.defaultValue,
                 newModule;
+
+            // the same
+            if (newId === oldId) {
+                return;
+            }
+
+            _this.hide(oldId, newParams, oldParams);
 
             newModule = seajs.require(newId);
             // module is loaded.
             if (newModule) {
                 _this.show(newId, newModule, newParams, oldParams);
             } else {
-                _config.loading && _config.loading(newParams, oldParams);
+                _this.emit('loading', newParams, oldParams);
                 seajs.use(newId, function(mod) {
+                    _this.emit('loaded', newParams, oldParams);
                     _this.show(newId, mod, newParams, oldParams);
                 });
             }
-            _this.hide(oldId, newParams, oldParams);
 
-            _config.callback && _config.callback();
+            _this.emit('changed', newParams, oldParams);
+        },
+
+        /**
+         * bind event
+         * @param {String} name
+         * @param {Function} callback
+         */
+        on: function(name, callback) {
+            (this.events[name] || (this.events[name] = [])).push(callback);
+            return this;
+        },
+
+        /**
+         * emit event.
+         * ...[name, arg1, arg2, ..]
+         */
+        emit: function() {
+            var args = [].slice.call(arguments),
+                list = this.events[args.shift()],
+                fn;
+
+            if (list) {
+                list = list.slice();
+
+                while((fn = list.shift())) {
+                    fn.apply(this, args);
+                }
+            }
         },
 
         /**
@@ -137,9 +171,9 @@ define(function() {
             if (id) {
                 var mod = seajs.require(id);
                 if (mod && mod.hide) {
-                    mod.hide(oldParams, newParams);
+                    mod.hide(oldParams, newParams, this);
                 } else {
-                    mod = document.getElementById(oldParams[this.config.id]);
+                    mod = document.getElementById(id);
                     if (mod) {
                         mod.style.display = 'none';
                     }
@@ -156,13 +190,13 @@ define(function() {
          */
         show: function(id, mod, newParams, oldParams) {
             if (!this.load[id]) {
-                mod.init(newParams, oldParams);
+                mod.init(newParams, oldParams, this);
                 this.load[id] = true;
             }
             if (mod.show) {
-                mod.show(newParams, oldParams);
+                mod.show(newParams, oldParams, this);
             } else {
-                mod = document.getElementById(newParams[this.config.id]);
+                mod = document.getElementById(id);
                 if (mod) {
                     mod.style.display = 'block';
                 }
