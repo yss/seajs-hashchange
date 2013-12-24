@@ -2,7 +2,7 @@
  * A Sea.js application for one page mode base on hashchange.
  */
 
-define(function() {
+define('hashchange', function() {
     "use strict";
     var win = window,
         HASH_CHANGE = 'hashchange';
@@ -27,7 +27,7 @@ define(function() {
             return new HashChange(config);
         }
 
-        // default: http://xxx.xx/#id=index
+        // default: http://xxx.xx/#id=index || http://xxx.xx/?id=index
         this.config = {
             id: 'id',
             defaultValue: 'index',
@@ -75,7 +75,7 @@ define(function() {
 
         /**
          * parse given url return parameter of hash.
-         * @param [String] url
+         * @param {String} [url]
          * @return {Object} default: {}
          */
         getHashParams: function(url) {
@@ -97,7 +97,7 @@ define(function() {
 
         /**
          * dispatch function, the part of core.
-         * @param [EventObject|Object] e
+         * @param {EventObject|Object} [e]
          */
         hashchange: function(e) {
             // for ie
@@ -171,7 +171,7 @@ define(function() {
             if (id) {
                 var mod = seajs.require(id);
                 if (mod && mod.hide) {
-                    mod.hide(oldParams, newParams, this);
+                    mod.hide(oldParams, newParams);
                 } else {
                     mod = document.getElementById(id);
                     if (mod) {
@@ -190,11 +190,11 @@ define(function() {
          */
         show: function(id, mod, newParams, oldParams) {
             if (!this.load[id]) {
-                mod.init(newParams, oldParams, this);
+                mod.init && mod.init(newParams, oldParams);
                 this.load[id] = true;
             }
             if (mod.show) {
-                mod.show(newParams, oldParams, this);
+                mod.show(newParams, oldParams);
             } else {
                 mod = document.getElementById(id);
                 if (mod) {
@@ -210,6 +210,8 @@ define(function() {
             var _this = this;
             // init load object
             _this.load = {};
+            // init events object
+            _this.events = {};
             // _this.attach(this.hashchange.bind(_this));
             _this.attach(function() {
                 _this.hashchange.apply(_this, arguments);

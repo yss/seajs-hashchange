@@ -5,7 +5,7 @@
 
 ```js
 seajs.use('path/to/seajs-hashchange.js', function(HashChange) {
-    // default: / is equivalent to /#id=index
+    // default: / is equivalent to /#id=index or /?id=index
     HashChange({
         id: 'id',
         defaultValue: 'index'
@@ -25,11 +25,11 @@ seajs.use('path/to/seajs-hashchange.js', function(HashChange) {
 
 some api must be implement form running js. There are: init, show, hide.
 
-### init(newParams, oldParams, instance)
+### init(newParams, oldParams)
 
-### show(newParams, oldParams, instance)
+### show(newParams, oldParams)
 
-### hide(oldParams, newParams, instance)
+### hide(oldParams, newParams)
 
 ## Finally
 
