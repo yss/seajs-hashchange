@@ -216,10 +216,13 @@ define('hashchange', function() {
             _this.attach(function() {
                 _this.hashchange.apply(_this, arguments);
             });
-            // first call
-            _this.hashchange({
-                newURL: win.location.href
-            });
+            // wait for register event
+            setTimeout(function() {
+                // first call
+                _this.hashchange({
+                    newURL: win.location.href
+                });
+            }, 10);
         }
     });
 
