@@ -1,12 +1,34 @@
 {
   "family": "seajs",
   "name": "seajs-hashchange",
-  "version": "2.1.0",
-  "description": "A Sea.js application for one page mode base on hashchange.",
-  "keywords": ["seajs", "plugin", "hashchange", "hash", "one page mode", "application"],
+  "version": "3.0.0",
   "author": "yss <yss.nelson@gmail.com>",
+  "description": "A Sea.js application for one page mode base on hashchange.",
+  "keywords": [
+    "seajs",
+    "hashchange",
+    "hash",
+    "one page mode",
+    "application"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/yss/seajs-hashchange.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yss/seajs-hashchange/issues"
+  },
+  "main": "Gruntfile.js",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-clean": ">=0.4.0",
+    "grunt-contrib-nodeunit": "~0.1.2",
+    "grunt": "~0.4.0"
   }
 }

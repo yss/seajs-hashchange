@@ -1,29 +1,57 @@
 # seajs-hashchange
     A Sea.js application for one page mode base on hashchange.
 
+## Flow Chart
+
+![hashchange flow chart](hashchange-flowchart.png)
+
 ## Usage
 
 ```js
 seajs.use('path/to/seajs-hashchange.js', function(HashChange) {
     // default: / is equivalent to /#id=index or /?id=index
     HashChange({
-        id: 'id',
-        defaultValue: 'index'
-    }).on('loading', function(newParams, oldParams) {
+        // id: 'id',
+        // defaultValue: 'index',
+        // hashKey: '#',
+        // for load more ids or not ids
+        getId: function(id) {
+            switch(id) {
+                case 'plainPage':
+                case 'noJsPage':
+                    return;
+                case 'moreJs':
+                    return ['moreJs', 'otherJS'];
+                default:
+                    return [id];
+            }
+        }
+    }).on('show', function(my) {
+        // run before exec show function of show module.
+        document.getElementById(my.id).style.display = 'block';
+    }).on('hide', function(my) {
+        // run before exec hide function of the hide module.
+        document.getElementById(my.id).style.display = 'none';
+    }).on('loading', function(my) {
         // only exec when load from server
-        alert(seajs.resolve(newParams['id']) + ' is loading...');
-    }).on('loaded', function(newParams, oldParams) {
+        console.log(seajs.resolve(my.id) + ' is loading');
+    }).on('loaded', function(my) {
         // only exec when loaded from server
-        alert(seajs.resolve(newParams['id']) + ' is loaded.'); 
-    }).on('changed', function(newParams, oldParams) {
+        console.log(seajs.resolve(my.id) + ' is loaded');
+    }).on('change', function(my) {
+        // run before every hash change
+        console.log('going to change...');
+    }).on('changed', function(my, old) {
         // run after every hash change
-    });
+        console.log(my.id +' page is show! ' + old.id + ' page is hided!');
+    }).change(); // init
 });
 ```
 
 ## implement
 
-some api must be implement form running js. There are: init, show, hide.
+some method will after every hashchange.
+some api must be implement from running js. There are: init, show, hide.
 
 ### init(newParams, oldParams)
 

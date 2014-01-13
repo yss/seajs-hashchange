@@ -5,20 +5,51 @@
     <title>hashchange test</title>
 </head>
 <body>
+<p id="index">index here.</p>
+<p id="t" style="display:none">test here.</p>
 <script src="sea.js"></script>
 <script>
 seajs.use('../src/seajs-hashchange.js', function(HashChange) {
     console.log(HashChange);
-    HashChange().on('loading', function(params) {
-        console.log(seajs.resolve(params.id) + ' is loading');
-    }).on('loaded', function(params) {
-        console.log(seajs.resolve(params.id) + ' is loaded');
-    }).on('change', function(params) {
-        console.log('hashchanged!');
-    });;
+    // default: / is equivalent to /#id=index or /?id=index
+    HashChange({
+        // id: 'id',
+        // defaultValue: 'index',
+        // hashKey: '#',
+        // for load more ids or not ids
+        getId: function(id) {
+            switch(id) {
+                case 'plainPage':
+                case 'noJsPage':
+                    return;
+                case 'moreJs':
+                    return ['moreJs', 'otherJS'];
+                default:
+                    return [id];
+            }
+        }
+    }).on('show', function(my) {
+        // run before exec show function of show module.
+        document.getElementById(my.id).style.display = 'block';
+    }).on('hide', function(my) {
+        // run before exec hide function of the hide module.
+        document.getElementById(my.id).style.display = 'none';
+    }).on('loading', function(my) {
+        // only exec when load from server
+        console.log(seajs.resolve(my.id) + ' is loading');
+    }).on('loaded', function(my) {
+        // only exec when loaded from server
+        console.log(seajs.resolve(my.id) + ' is loaded');
+    }).on('change', function(my) {
+        // run before every hash change
+        console.log('going to change...');
+    }).on('changed', function(my, old) {
+        // run after every hash change
+        console.log(my.id +' page is show! ' + old.id + ' page is hided!');
+    }).change();
 
     setTimeout(function() {
-        window.location.hash = 'id=t';
+        this.location.hash = 'id=t';
     }, 3000);
 });
 </script>

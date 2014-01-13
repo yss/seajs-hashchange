@@ -2,7 +2,7 @@
  * A Sea.js application for one page mode base on hashchange.
  */
 
-define('hashchange', function() {
+define(function() {
     "use strict";
     var win = window,
         HASH_CHANGE = 'hashchange';
@@ -21,21 +21,28 @@ define('hashchange', function() {
          * @config {String} config.id default: "id"
          * @config {String} config.defaultValue default: "index"
          * @config {String} config.hashKey default: "#"
+         * @config {Function} config.getId default: function(id) { return id; }
      */
     function HashChange(config) {
         if (!(this instanceof HashChange)) {
             return new HashChange(config);
         }
 
-        // default: http://xxx.xx/#id=index || http://xxx.xx/?id=index
+        // default: http://xxx.xx/#id=index (Firstly)
+        // or http://xxx.xx/?id=index
         this.config = {
             id: 'id',
             defaultValue: 'index',
-            hashKey: '#'
+            hashKey: '#',
+            getId: function(id) {
+                return [id];
+            }
         };
         config && cover(this.config, config);
 
-        this.init();
+        // init events object
+        this.events = {};
+
         return this;
     }
 
@@ -45,7 +52,7 @@ define('hashchange', function() {
          * @param {Function}
          */
         attach: function(fn) {
-            if ('on' + HASH_CHANGE in win.document.body) {
+            if (('on' + HASH_CHANGE) in win) {
                 return win['on' + HASH_CHANGE] = fn;
             }
             // refer: https://developer.mozilla.org/zh-CN/docs/Mozilla_event_reference/hashchange
@@ -89,25 +96,43 @@ define('hashchange', function() {
                 url = url.split(splitKey)[1];
                 url && url.replace(/([^=&]+)=([^&]*)/g, function($0, $1, $2) {
                     // params[$1] = $2 && JSON.parse($2);
-                    params[$1] = $2;
+                    params[$1] = decodeURIComponent($2);
                 });
             }
             return params;
         },
 
         /**
-         * dispatch function, the part of core.
+         * fix for some some browser has no newURL in hashchange event.
+         * @param {Event||Object} e
+         * @return {Event||Object}
+         */
+        getEvent: function(e) {
+            // for ie
+            e = e || win.event;
+            if (!e || !e.newURL) {
+                var url = location.href;
+                e = {
+                    newURL: url,
+                    oldURL: this.oldURL || ''
+                };
+                this.oldURL = url;
+            }
+            return e;
+        },
+
+        /**
+         * dispatch function, the core of hashchange.
          * @param {EventObject|Object} [e]
          */
         hashchange: function(e) {
-            // for ie
-            e = e || win.event;
+            e = this.getEvent(e);
             var _this = this,
                 _config = _this.config,
                 _id = _config.id,
                 oldParams = _this.getHashParams(e.oldURL),
                 newParams = _this.getHashParams(e.newURL),
-                oldId = oldParams[_id] = e.type && (oldParams[_id] || _config.defaultValue),
+                oldId = oldParams[_id] = e.oldURL && (oldParams[_id] || _config.defaultValue),
                 newId = newParams[_id] = newParams[_id] || _config.defaultValue,
                 newModule;
 
@@ -115,18 +140,24 @@ define('hashchange', function() {
             if (newId === oldId) {
                 return;
             }
+            _this.emit('change', newParams, oldParams);
 
             _this.hide(oldId, newParams, oldParams);
 
-            newModule = seajs.require(newId);
+            newId = _config.getId(newId);
+            // null, undefined, '', []
+            if (!newId || !newId.length) {
+                return _this.emit('show', newParams, oldParams);
+            }
+            newModule = seajs.require(newId[0]);
             // module is loaded.
             if (newModule) {
-                _this.show(newId, newModule, newParams, oldParams);
+                _this.show(newId[0], newModule, newParams, oldParams);
             } else {
                 _this.emit('loading', newParams, oldParams);
                 seajs.use(newId, function(mod) {
                     _this.emit('loaded', newParams, oldParams);
-                    _this.show(newId, mod, newParams, oldParams);
+                        _this.show(newId[0], mod, newParams, oldParams);
                 });
             }
 
@@ -169,15 +200,13 @@ define('hashchange', function() {
          */
         hide: function(id, newParams, oldParams) {
             if (id) {
-                var mod = seajs.require(id);
-                if (mod && mod.hide) {
-                    mod.hide(oldParams, newParams);
-                } else {
-                    mod = document.getElementById(id);
-                    if (mod) {
-                        mod.style.display = 'none';
-                    }
+                this.emit('hide', oldParams, newParams);
+                var ids = this.config.getId(id), mod;
+                if (!ids || !ids.length) {
+                    return;
                 }
+                mod = seajs.require(id);
+                mod && mod.hide && mod.hide(oldParams, newParams);
             }
         },
 
@@ -193,36 +222,23 @@ define('hashchange', function() {
                 mod.init && mod.init(newParams, oldParams);
                 this.load[id] = true;
             }
-            if (mod.show) {
-                mod.show(newParams, oldParams);
-            } else {
-                mod = document.getElementById(id);
-                if (mod) {
-                    mod.style.display = 'block';
-                }
-            }
+            this.emit('show', newParams, oldParams);
+            mod.show && mod.show(newParams, oldParams);
         },
 
         /**
          * initialize function
          */
-        init: function() {
+        change: function() {
             var _this = this;
             // init load object
             _this.load = {};
-            // init events object
-            _this.events = {};
             // _this.attach(this.hashchange.bind(_this));
             _this.attach(function() {
                 _this.hashchange.apply(_this, arguments);
             });
-            // wait for register event
-            setTimeout(function() {
-                // first call
-                _this.hashchange({
-                    newURL: win.location.href
-                });
-            }, 10);
+            // first call
+            _this.hashchange();
         }
     });
 
