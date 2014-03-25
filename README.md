@@ -5,6 +5,14 @@
 
 ![hashchange flow chart](hashchange-flowchart.png)
 
+This picture is show how seajs-hashchange work.
+
+## Events Chart
+
+![hashchange events](hashchange-events.png)
+
+This picture is show the time that events emit.
+
 ## Usage
 
 ```js
@@ -51,7 +59,7 @@ seajs.use('path/to/seajs-hashchange.js', function(HashChange) {
 ## implement
 
 some method will after every hashchange.
-some api must be implement from running js. There are: init, show, hide.
+some api should be implement from running js. There are: init, show, hide.
 
 ### init(newParams, oldParams)
 
