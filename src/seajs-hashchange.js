@@ -193,6 +193,35 @@ define(function() {
         },
 
         /**
+         * Remove event.
+         * @param {String} name
+         * @param {Function} callback
+         */
+        off: function(name, callback) {
+            // Remove *all* events
+            if (!(name || callback)) {
+                this.events = {};
+                return this;
+            }
+
+            var list = this.events[name];
+            if (list) {
+                if (callback) {
+                    for (var i = list.length - 1; i >= 0; i--) {
+                        if (list[i] === callback) {
+                            list.splice(i, 1);
+                        }
+                    }
+                }
+                else {
+                    delete this.events[name];
+                }
+            }
+
+            return this;
+        },
+
+        /**
          * hide module
          * @param {String} id
          * @param {Object} newParams
