@@ -18,7 +18,7 @@ This picture is show the time that events emit.
 ```js
 seajs.use('path/to/seajs-hashchange.js', function(HashChange) {
     // default: / is equivalent to /#id=index or /?id=index
-    HashChange({
+    var hashChange = HashChange({
         // id: 'id',
         // defaultValue: 'index',
         // hashKey: '#',
@@ -37,7 +37,7 @@ seajs.use('path/to/seajs-hashchange.js', function(HashChange) {
     }).on('show', function(my) {
         // run before exec show function of show module.
         document.getElementById(my.id).style.display = 'block';
-    }).on('hide', function(my) {
+    }).on('hide', function(my, next) {
         // run before exec hide function of the hide module.
         document.getElementById(my.id).style.display = 'none';
     }).on('loading', function(my) {
@@ -52,7 +52,49 @@ seajs.use('path/to/seajs-hashchange.js', function(HashChange) {
     }).on('changed', function(my, old) {
         // run after every hash change
         console.log(my.id +' page is show! ' + old.id + ' page is hided!');
-    }).change(); // init
+    });
+    
+    /* load templets synchron */
+    var CHANGE = 'change';
+    function loadTpl(ids, url) {
+        var fn = function(my) {
+            if (!ids || ~$.inArray(my.id, ids)) {
+                if (!$('#' + my.id)[0]) {
+                    $.ajax({
+                        url: url, // '/frame/mycenter.tpl',
+                        async: false, // synchron
+                        success: function(data) {
+                            $("#bd").append(data);
+                        },
+                        error: function() {
+                            alert('数据加载失败，请刷新页面重试~');
+                            location.reload();
+                        }
+                    });
+                    hashChange.off(CHANGE, fn);
+                }
+            }
+        }
+        hashChange.on(CHANGE, fn);
+    }
+    function loadStyle(ids, url) {
+        var fn = function(my) {
+            if (!ids || ~$.inArray(my.id, ids)) {
+                if (!$('#' + my.id)[0]) {
+                    var link = '<link rel="stylesheet" href="' + url + '"/>';
+                    $('head').append(link);
+                    hashChange.off(CHANGE, fn);
+                }
+            }
+        };
+        hashChange.on(CHANGE, fn);
+
+    }
+    // loadTpl(['someId', 'otherId'], 'TPL_URL');
+    // loadStyle(['someId', 'otherId'], 'STYLE_LINK');
+
+    // init
+    hashChange.change();
 });
 ```
 
