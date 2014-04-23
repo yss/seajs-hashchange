@@ -1,15 +1,19 @@
 # seajs-hashchange
     A Sea.js application for one page mode base on hashchange.
 
+## Schematic
+
+![seajs-hashchange](img/seajs-hashchange.png)
+
 ## Flow Chart
 
-![hashchange flow chart](hashchange-flowchart.png)
+![hashchange flow chart](img/hashchange-flowchart.png)
 
 This picture is show how seajs-hashchange work.
 
 ## Events Chart
 
-![hashchange events](hashchange-events.png)
+![hashchange events](img/hashchange-events.png)
 
 This picture is show the time that events emit.
 
