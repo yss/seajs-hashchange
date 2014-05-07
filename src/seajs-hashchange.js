@@ -134,7 +134,8 @@ define(function() {
                 newParams = _this.getHashParams(e.newURL),
                 oldId = oldParams[_id] = e.oldURL && (oldParams[_id] || _config.defaultValue),
                 newId = newParams[_id] = newParams[_id] || _config.defaultValue,
-                newModule;
+                newModule,
+                ids;
 
             // the same
             if (newId === oldId) {
@@ -144,20 +145,20 @@ define(function() {
 
             _this.hide(oldId, newParams, oldParams);
 
-            newId = _config.getId(newId);
+            ids = _config.getId(newId);
             // null, undefined, '', []
-            if (!newId || !newId.length) {
+            if (!ids || !ids.length) {
                 return _this.emit('show', newParams, oldParams);
             }
-            newModule = seajs.require(newId[0]);
+            newModule = seajs.require(newId);
             // module is loaded.
             if (newModule) {
-                _this.show(newId[0], newModule, newParams, oldParams);
+                _this.show(newId, newModule, newParams, oldParams);
             } else {
                 _this.emit('loading', newParams, oldParams);
-                seajs.use(newId, function(mod) {
+                seajs.use(ids, function() {
                     _this.emit('loaded', newParams, oldParams);
-                        _this.show(newId[0], mod, newParams, oldParams);
+                    _this.show(newId, seajs.require(newId), newParams, oldParams);
                 });
             }
 
